@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+      * {
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+      }
+
+      button:hover {
+        cursor: pointer;
+      }
+
+      img {
+        width: 200px;
+        height: 200px;
+      }
+
+      .addnew {
+        color: white;
+        padding: 10px;
+        background-color: rgb(84, 84, 239);
+        margin-top: 30px;
+        margin-left: 100px;
+        border-radius: 10px;
+      }
+
+      .addnew a {
+        text-decoration: none;
+        color: white;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 1000px;
+        margin: 30px auto;
+      }
+
+      th,
+      td {
+        text-align: center;
+        border: 1px solid black;
+        margin-bottom: 5px;
+        align-items: center;
+      }
+
+      th {
+        padding: 10px;
+        background-color: #f2f2f2;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      td button {
+        color: white;
+        padding: 15px;
+        margin-top: 5px;
+        margin-left: 15px;
+        margin-right: -25px;
+        margin-bottom: 5px;
+        border-radius: 10px;
+        display: flex;
+      }
+
+      .action-column {
+        width: 150px;
+      }
+
+      .combined-value {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .edit {
+        background-color: rgb(84, 84, 239);
+        padding: 10px;
+      }
+
+      .delete {
+        background-color: rgb(250, 25, 25);
+        padding: 10px;
+      }
+    </style>
+    <script>
+      $(document).ready(function () {
+        $(".delete-button").on("click", function (event) {
+          event.preventDefault();
+
+          let dataId = $(this).data("id");
+          let confirmDelete = confirm("Are you sure want to delete this item?");
+
+          if (confirmDelete) {
+            $.ajax({
+              url: "/artist/delete/" + dataId,
+              type: "DELETE",
+              success: function (response) {
+                console.log(response);
+                function result() {
+                  window.location.href = "/delete-success?_method=GET";
+                }
+                result();
+                setTimeout(function () {
+                  window.location.href = "/artist/getall";
+                }, 2000);
+              },
+              error: function (xhr, status, error) {
+                console.error(error);
+              },
+            });
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <button class="addnew"><a href="/artist">Add New</a></button>
+    <table>
+      <tr>
+        <th>No</th>
+        <th>Package Name</th>
+        <th>Artist Name</th>
+        <th>Date Release</th>
+        <th>Audio</th>
+        <th>Price</th>
+        <th class="action-column">Action</th>
+      </tr>
+      <% for(let i = 0; i < data.length; i++) { %>
+      <tr>
+        <td><%= data[i].id %></td>
+        <td>
+          <div class="combined-value">
+            <img src="<%= data[i].imageurl %>" alt="" />
+            <%= data[i].packagename %>
+          </div>
+        </td>
+        <td><%= data[i].artistname %></td>
+        <td>
+          <%= data[i].releasedate.getDate() + ' ' +
+          data[i].releasedate.toLocaleString('en-US', {month: 'long'}) + ' ' +
+          data[i].releasedate.getFullYear() %>
+        </td>
+        <td>
+          <audio
+            id="audioPlayer<%= i %>"
+            src="<%= data[i].sampleurl %>"
+            preload="auto"
+          ></audio>
+          <i
+            class="play-icon fa fa-play"
+            data-audio-id="audioPlayer<%= i %>"
+          ></i>
+        </td>
+        <td><%= data[i].price %></td>
+        <td>
+          <button class="edit">
+            <a href="/artist/edit/<%= data[i].id %>">Edit</a>
+          </button>
+          <button class="delete delete-button" data-id="<%= data[i].id %>">
+            Delete
+          </button>
+        </td>
+      </tr>
+      <% }; %>
+    </table>
+
+    <!-- Modal Pop Up Delete -->
+    <div id="delete-modal" style="display: none">
+      <div id="delete-modal-content">
+        <h3>Confirmation</h3>
+        <p>Are you sure you want to delete this item?</p>
+        <div id="delete-modal-buttons">
+          <button id="delete-confirm">Delete</button>
+          <button id="delete-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- End Modal Pop Up Delete -->
+
+    <script>
+      const playIcons = document.querySelectorAll(".play-icon");
+      const audioElements = document.querySelectorAll("audio");
+
+      playIcons.forEach((icon) => {
+        icon.addEventListener("click", () => {
+          const audioId = icon.dataset.audioId;
+          const audioElement = document.getElementById(audioId);
+
+          if (audioElement.paused) {
+            pauseAllAudio();
+            audioElement.play();
+            icon.classList.remove("fa-play");
+            icon.classList.add("fa-stop");
+          } else {
+            audioElement.pause();
+            icon.classList.remove("fa-stop");
+            icon.classList.add("fa-play");
+          }
+        });
+      });
+
+      function pauseAllAudio() {
+        audioElements.forEach((audio) => {
+          if (!audio.paused) {
+            audio.pause();
+            const icon = document.querySelector(
+              `[data-audio-id="${audio.id}"]`
+            );
+            icon.classList.remove("fa-stop");
+            icon.classList.add("fa-play");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

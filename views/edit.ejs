@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Data</title>
+    <style>
+      * {
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+      }
+      .button-back {
+        margin-top: 10px;
+        margin-left: 200px;
+        cursor: pointer;
+      }
+      .container-form {
+        padding: 10px;
+        margin-top: 25px;
+      }
+      .title-form {
+        margin: 10px auto;
+        text-align: center;
+      }
+      .form-addnew {
+        border: 2px solid black;
+        max-width: 450px;
+        margin: 5px auto;
+        padding: 10px;
+      }
+      .form-addnew label,
+      .form-addnew input {
+        display: block;
+        margin-bottom: 2px;
+        padding: 2px;
+        font-size: 16px;
+      }
+      .form-addnew input[type="submit"] {
+        margin: 10px auto;
+        width: 50%;
+      }
+      .form-addnew input[type="submit"],
+      .form-addnew input[type="file"] {
+        cursor: pointer;
+      }
+      img {
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button class="button-back">
+        <a href="/artist/getall">Back To Main Page</a>
+      </button>
+      <h3 class="title-form">Add New Music</h3>
+      <form
+        class="form-addnew"
+        action="/artist/update/<%= data.id %>?_method=PUT"
+        enctype="multipart/form-data"
+        method="POST"
+      >
+        <label for="imageurl">Image</label>
+        <img src="<%= data.imageurl %>" alt="" />
+        <input
+          type="file"
+          id="imageurl"
+          name="imageurl"
+          value="<%= data.imageurl %>"
+        /><br /><br />
+
+        <label for="packagename">Package Name</label>
+        <input
+          type="text"
+          id="packagename"
+          name="packagename"
+          value="<%= data.packagename %>"
+        /><br /><br />
+
+        <label for="artistname">Artist Name</label>
+        <input
+          type="text"
+          id="artistname"
+          name="artistname"
+          value="<%= data.artistname %>"
+        /><br /><br />
+
+        <label for="sampleurl">Music</label>
+        <input type="text" disabled="disabled" value="<%= data.sampleurl %>" />
+        <input
+          type="file"
+          id="sampleurl"
+          name="sampleurl"
+          value="<%= data.sampleurl %>"
+        /><br /><br />
+
+        <label for="releasedate">Release Date</label>
+        <input
+          type="date"
+          id="releasedate"
+          name="releasedate"
+          value="<%= data.releasedate.getDate() + ' ' +
+          data.releasedate.toLocaleString('en-US', {month: 'long'}) + ' ' +
+          data.releasedate.getFullYear() %>"
+        /><br /><br />
+
+        <label for="price">Price</label>
+        <input
+          type="text"
+          id="price"
+          name="price"
+          value="<%= data.price %>"
+        /><br /><br />
+
+        <input type="submit" value="submit" />
+      </form>
+    </div>
+  </body>
+</html>
